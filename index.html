@@ -3,34 +3,227 @@
  <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Video Sahifa</title>
+  <title>Ogʻabek Story Sahifasi</title>
   <script src="/_sdk/element_sdk.js"></script>
   <style>
         body {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            background: #000;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a1a;
             height: 100%;
-            overflow: hidden;
         }
 
         html {
             height: 100%;
         }
 
-        .video-container {
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: #2d2d2d;
+            min-height: 100%;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        }
+
+        .header {
+            background: #2d2d2d;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid #444;
+        }
+
+        .profile-circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 3px solid #007bff;
+            margin: 0 auto 15px;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .profile-circle:hover {
+            transform: scale(1.05);
+        }
+
+        .profile-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .new-story-indicator {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 25px;
+            height: 25px;
+            background: #28a745;
+            border-radius: 50%;
+            border: 3px solid white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .profile-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        .story-status {
+            font-size: 0.9rem;
+            color: #ccc;
+        }
+
+        .stories-section {
+            padding: 20px;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 15px;
+        }
+
+        .stories-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .story-card {
+            aspect-ratio: 3/4;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            background: #3a3a3a;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            border: 1px solid #555;
+        }
+
+        .story-card:hover {
+            transform: scale(1.02);
+        }
+
+        .story-thumbnail {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .story-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+            color: white;
+            padding: 8px;
+            font-size: 0.75rem;
+        }
+
+        .story-time {
+            font-size: 0.65rem;
+            opacity: 0.9;
+        }
+
+        /* Video modal styles */
+        .video-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+        }
+
+        .video-content {
             width: 100%;
             height: 100%;
             display: flex;
-            justify-content: center;
-            align-items: center;
+            flex-direction: column;
         }
 
         .video-player {
             width: 100%;
-            height: 100%;
-            object-fit: cover;
+            height: 75%;
+            object-fit: contain;
+            background: #000;
+        }
+
+        .comment-section {
+            height: 25%;
+            background: #2d2d2d;
+            padding: 15px;
+            overflow-y: auto;
+            border-top: 1px solid #444;
+        }
+
+        .comments-display {
+            background: #3a3a3a;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+
+        .comment {
+            background: #4a4a4a;
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 14px;
+            border: 1px solid #555;
+            color: #fff;
+        }
+
+        .comment-time {
+            font-size: 12px;
+            color: #ccc;
+            font-weight: bold;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        .back-btn:hover {
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                max-width: 100%;
+            }
+            
+            .stories-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
     </style>
   <style>@view-transition { navigation: auto; }</style>
@@ -38,13 +231,53 @@
   <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
  </head>
  <body>
-  <div class="video-container">
-   <video class="video-player" id="videoPlayer" autoplay muted loop controls><source src="babuyin.mp4" type="video/mp4"> Brauzeringiz video ijro qilishni qo'llab-quvvatlamaydi.
-   </video>
+  <div class="container">
+   <div class="header">
+    <div class="profile-circle" id="profileCircle"><img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&amp;h=200&amp;fit=crop&amp;crop=face" alt="Profil rasmi" class="profile-image" id="profileImage">
+     <div class="new-story-indicator">
+      +
+     </div>
+    </div>
+    <div class="profile-name" id="profileName">
+     Mening Profilim
+    </div>
+    <div class="story-status">
+     Yangi story qo'shildi
+    </div>
+   </div>
+   <div class="stories-section">
+    <div class="section-title">
+     Mening Storiylarim
+    </div>
+    <div class="stories-grid" id="storiesGrid"><!-- Sample stories -->
+     <div class="story-card" data-video="babuyin.mp4" data-comments="[&quot;]"><img src="https:/;fit=crop" alt="Story" class="story-thumbnail">
+      <div class="story-overlay">
+       <div>
+        S
+       </div>
+       
+      </div>
+     </div>
+    </div>
+   </div>
+  </div><!-- Video Modal -->
+  <div class="video-modal" id="videoModal"><button class="back-btn" id="backBtn">← Orqaga</button>
+   <div class="video-content">
+    <video class="video-player" id="videoPlayer" autoplay loop controls>
+     Brauzeringiz video ijro qilishni qo'llab-quvvatlamaydi.
+    </video>
+    <div class="comment-section">
+     <div class="comments-display" id="commentsDisplay"><!-- Izohlar bu yerda ko'rinadi -->
+     </div>
+    </div>
+   </div>
   </div>
   <script>
         const defaultConfig = {
-            video_url: "babuyin.mp4"
+            profile_name: "Kamolov Ogʻabek",
+            profile_image: "ogabek.jpg",
+            video_url: "1.mp4",
+            new_video_comments: "Men sendan hech kecha olmadim 😔❤️‍🩹."
         };
 
         // Element SDK initialization
@@ -52,11 +285,14 @@
             window.elementSdk.init({
                 defaultConfig,
                 onConfigChange: async (config) => {
-                    const videoPlayer = document.getElementById('videoPlayer');
-                    const videoUrl = config.video_url || defaultConfig.video_url;
+                    const profileName = document.getElementById('profileName');
+                    const profileImage = document.getElementById('profileImage');
                     
-                    if (videoPlayer && videoUrl) {
-                        videoPlayer.src = videoUrl;
+                    if (profileName) {
+                        profileName.textContent = config.profile_name || defaultConfig.profile_name;
+                    }
+                    if (profileImage) {
+                        profileImage.src = config.profile_image || defaultConfig.profile_image;
                     }
                 },
                 mapToCapabilities: (config) => ({
@@ -66,10 +302,71 @@
                     fontSizeable: undefined
                 }),
                 mapToEditPanelValues: (config) => new Map([
-                    ["video_url", config.video_url || defaultConfig.video_url]
+                    ["profile_name", config.profile_name || defaultConfig.profile_name],
+                    ["profile_image", config.profile_image || defaultConfig.profile_image],
+                    ["video_url", config.video_url || defaultConfig.video_url],
+                    ["new_video_comments", config.new_video_comments || defaultConfig.new_video_comments]
                 ])
             });
         }
+
+        // Profile circle click to open new video
+        document.getElementById('profileCircle').addEventListener('click', () => {
+            const config = window.elementSdk ? window.elementSdk.config : defaultConfig;
+            openVideo(config.video_url || defaultConfig.video_url, config.new_video_comments || defaultConfig.new_video_comments);
+        });
+
+        // Story card click handlers
+        document.querySelectorAll('.story-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const videoUrl = card.getAttribute('data-video');
+                const commentsData = JSON.parse(card.getAttribute('data-comments'));
+                openVideo(videoUrl, commentsData);
+            });
+        });
+
+        // Open video function
+        function openVideo(videoUrl, comments) {
+            const videoModal = document.getElementById('videoModal');
+            const videoPlayer = document.getElementById('videoPlayer');
+            const commentsDisplay = document.getElementById('commentsDisplay');
+            
+            videoPlayer.src = videoUrl;
+            videoModal.style.display = 'block';
+            
+            // Display comments
+            commentsDisplay.innerHTML = '';
+            if (typeof comments === 'string') {
+                // Single comment for new video
+                const commentDiv = document.createElement('div');
+                commentDiv.className = 'comment';
+                commentDiv.innerHTML = `<div class="comment-time">Yangi izoh:</div>${comments}`;
+                commentsDisplay.appendChild(commentDiv);
+            } else if (Array.isArray(comments)) {
+                // Multiple comments for old stories
+                comments.forEach((comment, index) => {
+                    const commentDiv = document.createElement('div');
+                    commentDiv.className = 'comment';
+                    commentDiv.innerHTML = `<div class="comment-time">${index + 1}-izoh:</div>${comment}`;
+                    commentsDisplay.appendChild(commentDiv);
+                });
+            }
+        }
+
+        // Close modal
+        document.getElementById('backBtn').addEventListener('click', () => {
+            const videoModal = document.getElementById('videoModal');
+            const videoPlayer = document.getElementById('videoPlayer');
+            videoModal.style.display = 'none';
+            videoPlayer.pause();
+        });
+
+        // Close modal when clicking outside video
+        document.getElementById('videoModal').addEventListener('click', (e) => {
+            if (e.target.id === 'videoModal') {
+                document.getElementById('backBtn').click();
+            }
+        });
     </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'995c66a4d2dfd2e7',t:'MTc2MTY3NTE0Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'995f8a6a917dc4ec',t:'MTc2MTcwODA2NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
